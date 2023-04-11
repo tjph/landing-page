@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Animated Text on Scroll</title>
+	<style>
+	body {
+		font-family: sans-serif;
+		margin: 0;
+		padding: 0;
+	}
+	nav ul, nav li {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	nav a {
+		color: black;
+		position: relative;
+		text-decoration: none;
+	}
+	nav a::after {
+		display: block;
+		content: "";
+		height: 3px;
+		position: absolute;
+		bottom: -6px;
+		width: 100%;
+		background: black;
+		transform: scaleX(0);
+		transition: all 0.25s;
+	}
+	nav a.active::after {
+		transform: scaleX(100%);
+	}
+	nav {
+		position: sticky;
+		top: 0;
+		background: white;
+		left: 0;
+		width: 100%;
+		z-index: 1;
+		height: 45px;
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+	}
+	nav ul {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-gap: 10px;
+	}
+	nav li {
+
+	}
+	#scroll-container {
+		display: grid;
+		grid-gap: 20px;
+	}
+	.box {
+		height: calc(100vh - 45px);
+		position: relative;
+		padding: 50px;
+		color: white;
+	}
+	h1 {
+		transform: translateX(-500px);
+		margin-top: 0;
+		font-size: 5em;
+	}
+	p {
+		opacity: 0;
+		transform: translateY(50px);
+	}
+	.slide-in.animate {
+		transform: translateX(0);
+	}
+	.fade-in.animate {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	.animate {
+		transition: all 1s ease-in-out;
+		opacity: 1;
+	}
+	.animated.animated-div {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 0;
+		z-index: -1;
+	}
+	.animated.animated-div.animate {
+		animation-name: fill;
+		animation-duration: 1s;
+		animation-fill-mode: forwards;
+	}
+	.anchor {
+		height: 3px;
+		background-color: aqua;
+		width: 100px;
+		position: relative;
+		top: 0px;	
+	}
+
+	@keyframes fill {
+		to {
+			height: 100%;
+		}
+	}
+	</style>
+</head>
+<body>
+	<nav class="fixed-menu">
+		<ul>
+			<li><a href="#section1">Section 1</a></li>
+			<li><a href="#section2">Section 2</a></li>
+			<li><a href="#section3">Section 3</a></li>
+		</ul>
+	</nav>
+	  
+
+	<div id="scroll-container">
+		<section id="section1" class="box">
+			<div class="animated animated-div" style="background-color: red;"></div>
+			<h1 class="animated slide-in">Section 1</h1>
+			<p class="animated fade-in">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam consectetur, nisi ut iaculis blandit, odio enim finibus enim, eu sagittis felis justo nec elit.</p>
+		</section>
+		
+		<section id="section2" class="box">
+			<div class="animated animated-div" style="background-color: green;"></div>
+			<h1 class="animated slide-in">Section 2</h1>
+			<p class="animated fade-in">Vestibulum sollicitudin lorem massa, ut dignissim sapien consectetur vel. Ut euismod, magna vel sagittis lobortis, libero purus commodo velit, ac malesuada lacus risus vel mauris. Aenean varius diam eu ultrices efficitur.</p>
+		</section>
+
+		<section id="section3" class="box">
+			<div class="animated animated-div" style="background-color: blue;"></div>
+			<h1 class="animated slide-in">Section 3</h1>
+			<p class="animated fade-in">Donec vestibulum libero quis dapibus semper. In et sagittis quam, sit amet volutpat nulla. Fusce egestas justo euismod feugiat pretium. Sed blandit sollicitudin turpis, eget tempus est accumsan sit amet. Sed tincidunt consequat purus, eu suscipit odio vehicula id. Morbi sit amet posuere velit.</p>
+		</section>
+	</div>
+
+	<script>
+		const boxes = document.querySelectorAll('.box');
+		const menuLinks = document.querySelectorAll('.fixed-menu li a');
+
+		const options = {
+			rootMargin: '0px',
+			threshold: 0.1
+		};
+
+		function animateText(entries, observer) {
+			entries.forEach(entry => {
+			const id = entry.target.getAttribute('id');
+			const menuLink = document.querySelector(`.fixed-menu li a[href="#${id}"]`);
+
+				if (entry.isIntersecting) {
+					menuLink.classList.add('active');
+					const animatedTexts = entry.target.querySelectorAll('.animated');
+					animatedTexts.forEach((text) => {
+						text.classList.add('animate');
+					});
+				} else {
+					menuLink.classList.remove('active');
+					const animatedTexts = entry.target.querySelectorAll('.animated');
+					animatedTexts.forEach((text) => {
+						text.classList.remove('animate');
+					});		
+				}
+			});
+		}
+
+		const observer = new IntersectionObserver(animateText, options);
+
+		boxes.forEach((box) => {
+			observer.observe(box);
+		});
+
+		menuLinks.forEach(link => {
+			link.addEventListener('click', event => {
+				event.preventDefault();
+
+				const targetId = link.getAttribute('href');
+				const targetSection = document.querySelector(targetId);
+
+				console.log(targetId, targetSection);
+
+				if (targetSection) {
+					window.scrollTo({
+						top: targetSection.offsetTop - 45,
+						behavior: "smooth"
+					});
+				}
+			});
+		});
+
+	</script>
+	</body>
+</html>
